@@ -1,6 +1,6 @@
 # Typst Preview for Orca
 
-Last updated on 2026-11-17 at commit `04246d0`.
+Last updated on 2026-11-17 at commit `de2b018`.
 
 Edit Typst beside a live Tinymist preview, on a local or remote workspace using
 Orca's existing connection. Choose a recently modified file or paste its full
@@ -32,8 +32,22 @@ Each release is pinned to a commit and a SHA-256 content hash. Ordinary updates
 from this repository keep the existing approval; updates requesting additional
 access need review. Orca 1.4.247 checks at startup and every six hours and waits
 twelve hours after first seeing a non-official release before automatically
-installing it. To get a fix sooner, refresh the catalog and click **Update**.
-No ZIP download or folder reinstallation is needed for subsequent updates.
+installing it. To get a fix sooner:
+
+1. Return to the main **Settings → Plugins** list.
+2. Click the circular-arrow **Refresh catalogs** button in the list toolbar.
+3. Open **Typst Preview** and click **Update 0.3.1** (or the newer listed version).
+4. Save edits and reopen the file tab to load the updated editor.
+
+On Orca 1.4.247, **Check for update** in a plugin's menu checks the cached catalog;
+it does not fetch GitHub. It can report the installed version until you use
+**Refresh catalogs**. The twelve-hour delay applies to automatic installation,
+not a manual update after refreshing. If the catalog still looks old, open
+**Plugin settings → Catalog sources**, check that this repository uses ref
+`main`, and inspect its refresh error/status. Local folder installations need
+the one-time migration above to receive catalog updates.
+
+No ZIP download or folder reinstallation is needed for subsequent catalog updates.
 
 ## Use
 
