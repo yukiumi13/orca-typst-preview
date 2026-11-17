@@ -1,6 +1,6 @@
 # Typst Preview for Orca
 
-Last updated on 2026-11-17 at commit `015fbfa`.
+Last updated on 2026-11-17 at commit `04246d0`.
 
 Edit Typst beside a live Tinymist preview, on a local or remote workspace using
 Orca's existing connection. Choose a recently modified file or paste its full
@@ -12,11 +12,16 @@ Requires **Orca desktop 1.4.247+**, Tinymist on the compilation host, and Node.j
 22+ on remote hosts. Local previews use Orca's bundled Node. Install this on the
 machine running the desktop app, even when your files are remote.
 
-1. Open **Settings → Plugins → ⋯ → Catalog sources…**.
+1. Open **Settings → Plugins → Plugin settings → Catalog sources…**. The plugin settings button is beside **Add plugin**.
 2. Add `https://github.com/yukiumi13/orca-typst-preview.git`, ref **main**.
 3. Find **Typst Preview** in that catalog, install it, and approve its listed access.
 4. Keep **Update plugins automatically** on.
 5. Open a `.typ` file and select **Preview** beside **Source**.
+
+Use **Catalog sources…** for this repository. **Add plugin → From a Git URL…**
+expects `orca-plugin.json` at the repository root and will reject this catalog.
+If you downloaded GitHub's source ZIP for a folder installation, select its
+`plugin/` subdirectory. A folder installation does not receive catalog updates.
 
 If you used an earlier ZIP/folder installation, disable `local.typst-preview`
 after installing the catalog version (`yukiumi13.typst-preview`). Transfer any
@@ -37,6 +42,12 @@ No ZIP download or folder reinstallation is needed for subsequent updates.
   workspace automatically among known workspaces on the same host.
 - Drag the divider to resize the editor and preview. **Reveal cursor** locates
   the source position in the preview.
+- **Reading view** fills the editor with the preview; **Split view** restores
+  the source and previous divider position without restarting the compiler.
+  The current reading position is retained as the width changes.
+- **Fit width** resets manual zoom. It does not change the document's paper size.
+- Click a handbook index, section or return link to jump immediately to its
+  destination near the top of the viewport. These links do not move source focus.
 - The live preview includes unsaved edits. The adjacent PDF uses saved source.
 - **Close preview** releases the compiler when its last view closes.
 

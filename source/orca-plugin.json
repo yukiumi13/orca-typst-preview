@@ -2,7 +2,7 @@
   "manifestVersion": 2,
   "id": "typst-preview",
   "name": "Typst Preview",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Edit Typst beside a live preview using the current Orca workspace and its existing host connection.",
   "engines": {
     "orca": ">=1.4.247"

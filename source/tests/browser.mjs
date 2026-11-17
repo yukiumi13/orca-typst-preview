@@ -7,13 +7,15 @@ import net from 'node:net'
 import { fileURLToPath } from 'node:url'
 import assert from 'node:assert/strict'
 import activate, { deactivate } from '../worker/main.mjs'
+import { createHandbook, checkReading } from './reading.mjs'
 
 const root = path.resolve(fileURLToPath(new URL('..', import.meta.url)))
 const remote = process.env.TYPST_TEST_WORKSPACE ? JSON.parse(process.env.TYPST_TEST_WORKSPACE) : null
 const evidence = path.resolve(root, '../../outputs/tasks/orca-typst-preview', process.env.TYPST_TEST_TAG || (remote ? 'paired-ui' : 'ui'))
 await mkdir(evidence, { recursive: true })
-const fixture = '#import "@local/research-note:0.2.0": note\n#show: note.with(title: [Preview test], owner: [Local fixture])\n\n= Live notes\nThis document uses the local g3doc template.\n\n#table(columns: (1fr, 1fr), [Budget], [Success], [4 steps], [42.1%])\n'
+let fixture = '#import "@local/research-note:0.2.0": note\n#show: note.with(title: [Preview test], owner: [Local fixture])\n\n= Live notes\nThis document uses the local g3doc template.\n\n#table(columns: (1fr, 1fr), [Budget], [Success], [4 steps], [42.1%])\n'
 const workspaceRoot = process.env.TYPST_TEST_ROOT || await mkdtemp('/tmp/typst-browser-')
+if (process.env.TYPST_TEST_READING) fixture = await createHandbook(workspaceRoot)
 await writeFile(path.join(workspaceRoot, 'preview.typ'), fixture)
 await writeFile(path.join(workspaceRoot, 'older.typ'), fixture)
 await utimes(path.join(workspaceRoot, 'older.typ'), 1, 1)
@@ -110,6 +112,7 @@ try {
   assert.equal(await page.locator('#filename').getAttribute('title'), path.join(workspaceRoot, 'preview.typ'))
   assert.equal(opened[0].workspace.id, remote?.id || 'browser')
   console.log('Initial glyphs:', initialGlyphs)
+  if (process.env.TYPST_TEST_READING) await checkReading(page, evidence)
   const editStarted = Date.now()
   await page.locator('.cm-content').click()
   await page.keyboard.press('Control+End')
@@ -119,8 +122,10 @@ try {
   await page.waitForTimeout(200)
   await page.screenshot({ path: path.join(evidence, 'preview-edited.png') })
   assert.equal(await readFile(path.join(workspaceRoot, 'preview.typ'), 'utf8'), fixture)
+  if (process.env.TYPST_TEST_READING) await page.getByRole('button', { name: 'Reading view', exact: true }).click()
   await page.getByRole('button', { name: 'Close preview', exact: true }).click()
   await page.waitForFunction(() => document.querySelector('#status')?.textContent === 'Preview closed')
+  assert.equal(await page.locator('#source').isVisible(), true)
   await page.getByRole('button', { name: 'Preview', exact: true }).click()
   await page.waitForFunction(() => document.querySelector('#status')?.textContent === 'Live')
   await page.waitForTimeout(1500)

@@ -16875,7 +16875,7 @@ function isEmptyToEnd(node, end) {
     }
   return true;
 }
-var DOMPoint = class {
+var DOMPoint2 = class {
   constructor(node, offset) {
     this.node = node;
     this.offset = offset;
@@ -17134,9 +17134,9 @@ function selectionPoints(view) {
     return result;
   let { anchorNode, anchorOffset, focusNode, focusOffset } = view.observer.selectionRange;
   if (anchorNode) {
-    result.push(new DOMPoint(anchorNode, anchorOffset));
+    result.push(new DOMPoint2(anchorNode, anchorOffset));
     if (focusNode != anchorNode || focusOffset != anchorOffset)
-      result.push(new DOMPoint(focusNode, focusOffset));
+      result.push(new DOMPoint2(focusNode, focusOffset));
   }
   return result;
 }
@@ -32642,12 +32642,52 @@ async function upload(view, text) {
   }
 }
 
+// editor/reading.ts
+function renderers() {
+  const container = document.getElementById("typst-container");
+  return container.documents?.map((document2) => document2.impl) || [];
+}
+function fitPreviewWidth() {
+  for (const renderer of renderers()) {
+    renderer.currentScaleRatio = 1;
+    renderer.addViewportChange();
+  }
+}
+function installReadingNavigation() {
+  const container = document.getElementById("typst-container");
+  const scroller = document.getElementById("typst-container-main");
+  container.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    const match = link?.getAttribute("onclick")?.match(/^handleTypstLocation\(this,\s*(\d+),\s*([-+\d.e]+),\s*([-+\d.e]+)\);?\s*return false;?$/i);
+    if (!match) return;
+    const [page, x, y] = match.slice(1).map(Number);
+    if (![page, x, y].every(Number.isFinite)) return;
+    const target = container.querySelector(`g.typst-page[data-page-number="${page - 1}"]`);
+    const matrix = target?.getScreenCTM();
+    if (!matrix) return;
+    const point = new DOMPoint(x, y).matrixTransform(matrix);
+    const viewport = scroller.getBoundingClientRect();
+    event.preventDefault();
+    event.stopPropagation();
+    for (const renderer of renderers()) renderer.clearSvgResizeAnchor();
+    scroller.scrollTo({
+      top: scroller.scrollTop + point.y - viewport.top - 16,
+      left: point.x < viewport.left || point.x > viewport.right ? scroller.scrollLeft + point.x - viewport.left - 16 : scroller.scrollLeft,
+      behavior: "instant"
+    });
+    for (const renderer of renderers()) renderer.addViewportChange();
+  }, true);
+}
+
 // editor/main.ts
 var element = (id) => document.getElementById(id);
 var status = element("status");
 var errorBox = element("problem");
 var toggle = element("toggle");
 var picker = element("file-picker");
+var reading = element("reading");
+var fitWidth = element("fit-width");
+var readingMode = false;
 var workspaceReady = request("preview.workspace", {});
 void workspaceReady.catch(() => {
 });
@@ -32764,7 +32804,7 @@ function control(value) {
     const line = Math.min(editor.state.doc.lines, (value.start?.[0] ?? value.line ?? 0) + 1);
     const at = editor.state.doc.line(Math.max(1, line)).from + (value.start?.[1] ?? 0);
     editor.dispatch({ selection: { anchor: Math.min(at, editor.state.doc.length) }, effects: EditorView.scrollIntoView(at, { y: "center" }) });
-    editor.focus();
+    if (!readingMode) editor.focus();
   }
 }
 async function identify() {
@@ -32831,6 +32871,8 @@ async function openPreview(pastedPath) {
     dirtyPreview = true;
     await sendDraft();
     toggle.textContent = "Close preview";
+    reading.disabled = false;
+    fitWidth.disabled = false;
   } catch (error) {
     if (!workspace) workspaceReady = null;
     fail(String(error));
@@ -32842,8 +32884,11 @@ async function openPreview(pastedPath) {
 async function closePreview() {
   const view = preview;
   preview = null;
+  reading.disabled = true;
+  fitWidth.disabled = true;
   clearTimeout(updateTimer);
   await window.stopTypstPreview();
+  setReadingMode(false);
   stopTransport();
   if (view) await request("preview.close", { view }).catch(() => {
   });
@@ -32855,6 +32900,18 @@ async function closePreview() {
 toggle.onclick = () => {
   void (preview ? closePreview() : openPreview());
 };
+function setReadingMode(enabled) {
+  if (enabled === readingMode) return;
+  readingMode = enabled;
+  element("layout").classList.toggle("reading", enabled);
+  reading.textContent = enabled ? "Split view" : "Reading view";
+  reading.title = enabled ? "Show source beside the preview" : "Hide source and use the full preview width";
+  reading.setAttribute("aria-pressed", String(enabled));
+  editor.requestMeasure();
+  window.dispatchEvent(new Event("resize"));
+}
+reading.onclick = () => setReadingMode(!readingMode);
+fitWidth.onclick = fitPreviewWidth;
 picker.onchange = () => {
   if (picker.value) {
     selectedPath = picker.value;
@@ -32946,5 +33003,6 @@ divider.onpointerdown = (event) => {
   };
 };
 await Promise.resolve().then(() => (init_tinymist(), tinymist_exports));
+installReadingNavigation();
 await openPreview();
 //# sourceMappingURL=main.js.map

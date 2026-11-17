@@ -1,6 +1,6 @@
 # Typst Preview
 
-Last updated on 2026-11-17 at commit `015fbfa`.
+Last updated on 2026-11-17 at commit `04246d0`.
 
 Open a `.typ` file in Orca and select **Preview** beside **Source**. Edit the
 source beside Tinymist's live rendering; drag the divider to resize. Paste the
@@ -11,6 +11,15 @@ The plugin suggests the current workspace and compiles the chosen file on its
 host through the existing Orca connection.
 Saving updates a PDF beside the `.typ` source while Preview is open.
 
+**Reading view** hides the source and fills the editor with the preview.
+**Split view** restores the source and the divider's previous position, keeping
+the same draft and compiler. Resizing retains the current reading position.
+**Fit width** resets manual zoom to the preview's available width. These controls
+change display only; they do not change paper size, pagination or source content.
+Handbook index, section and return links jump immediately to their destination
+near the top of the viewport. Clicking them does not also reveal source. The
+separate **Reveal cursor** button retains Tinymist's source-position navigation.
+
 Requires Orca desktop 1.4.247 or newer, Tinymist on the
 workspace host, and Node.js 22+ on remote hosts. Local compilation uses Orca's
 bundled Node runtime. The renderer is pinned to Tinymist's 2026-11-03 build
@@ -19,11 +28,15 @@ bundled Node runtime. The renderer is pinned to Tinymist's 2026-11-03 build
 ## Install from GitHub and receive updates
 
 Add `https://github.com/yukiumi13/orca-typst-preview.git` with ref `main` under
-**Settings > Plugins > Catalog sources**, then install **Typst Preview** from
+**Settings > Plugins > Plugin settings > Catalog sources**, then install **Typst Preview** from
 that source. Its catalog identity is `yukiumi13.typst-preview`. Approve the
 initial installation and keep **Update plugins automatically** enabled.
 Disable the old `local.typst-preview` folder installation to avoid duplicate
 Preview editors. Transfer any custom executable, font or package settings once.
+The plugin settings button is beside **Add plugin**. Choose **Catalog sources**
+there; **Add plugin > From a Git URL** expects a root `orca-plugin.json` and does
+not install this catalog repository. For a downloaded source archive, the
+installable folder is its `plugin/` subdirectory.
 
 Each catalog release pins the built `plugin/` directory to a commit and content
 hash. Updates from the same repository without added access keep their approval.
@@ -231,7 +244,8 @@ and requires choosing which version to keep. CodeMirror provides undo/redo.
 | File | Responsibility |
 | --- | --- |
 | `orca-plugin.json` | Optional Preview editor, settings and capabilities |
-| `editor/main.ts`, `index.html`, `style.css` | Split view, pasted paths, recent-file chooser, workspace correction and status |
+| `editor/main.ts`, `index.html`, `style.css` | Split/reading view, pasted paths, recent-file chooser, workspace correction and status |
+| `editor/reading.ts` | Fit-width zoom and direct numeric SVG-link navigation without source jumps |
 | `editor/sync.ts` | Versioned document edits, flushing and conflict preservation |
 | `editor/transport.ts` | Tinymist WebSocket adapter over Orca worker RPC |
 | `worker/main.mjs` | Workspace bindings, shared helpers, per-view queues and leases |
@@ -252,6 +266,7 @@ npm run typecheck
 npm test
 npm run build
 node tests/browser.mjs
+TYPST_TEST_READING=1 node tests/browser.mjs
 orca plugin validate dist --json
 orca plugin inspect dist --json
 orca plugin dev watch dist --json
@@ -261,8 +276,16 @@ orca plugin dev watch dist --json
 omit them. Rebuild before testing the browser or reloading a development
 plugin. `tests/browser.mjs` uses real Chromium and Tinymist with an Orca bridge
 fixture and the local `research-note:0.2.0` package. `CHROME_BIN` and
-`TINYMIST_BIN` override those executables. The isolated desktop and paired-server release checks are maintained in the
-authoring workspace; they are not part of this source checkout.
+`TINYMIST_BIN` override those executables. The isolated desktop and paired-server
+release checks are maintained in the authoring workspace; they are not part of
+this source checkout.
+
+The reading regression uses a multi-file handbook and checks immediate index
+navigation, keyboard return links, width and position across view changes,
+fit-width after manual zoom, unchanged drafts and cleanup after closing reading
+view. The navigation adapter recognizes only the pinned renderer's numeric
+`handleTypstLocation` destinations and transforms their SVG coordinates; other
+links retain the renderer's behavior. It does not evaluate inline handler text.
 
 After changing Tinymist versions, verify rendering before updating the bundled
 frontend. Regenerate it from preview HTML with

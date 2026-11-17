@@ -5,6 +5,7 @@ import { indentWithTab } from '@codemirror/commands'
 import { StreamLanguage } from '@codemirror/language'
 import { DocumentSync } from './sync'
 import { request, listen, upload, stopTransport } from './transport'
+import { fitPreviewWidth, installReadingNavigation } from './reading'
 
 declare global { interface Window { startTypstPreview: () => void; stopTypstPreview: () => Promise<void> } }
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
@@ -12,6 +13,9 @@ const status = element('status')
 const errorBox = element('problem')
 const toggle = element<HTMLButtonElement>('toggle')
 const picker = element<HTMLSelectElement>('file-picker')
+const reading = element<HTMLButtonElement>('reading')
+const fitWidth = element<HTMLButtonElement>('fit-width')
+let readingMode = false
 // Capture the editor's workspace before renderer initialization or later focus changes.
 let workspaceReady: Promise<any> | null = request('preview.workspace', {})
 void workspaceReady.catch(() => {})
@@ -105,7 +109,7 @@ function control(value: any) {
     const line = Math.min(editor.state.doc.lines, (value.start?.[0] ?? value.line ?? 0) + 1)
     const at = editor.state.doc.line(Math.max(1, line)).from + (value.start?.[1] ?? 0)
     editor.dispatch({ selection: { anchor: Math.min(at, editor.state.doc.length) }, effects: EditorView.scrollIntoView(at, { y: 'center' }) })
-    editor.focus()
+    if (!readingMode) editor.focus()
   }
 }
 async function identify() {
@@ -169,13 +173,18 @@ async function openPreview(pastedPath?: string) {
     dirtyPreview = true
     await sendDraft()
     toggle.textContent = 'Close preview'
+    reading.disabled = false
+    fitWidth.disabled = false
   } catch (error) { if (!workspace) workspaceReady = null; fail(String(error)) }
   finally { opening = false; toggle.disabled = false }
 }
 async function closePreview() {
   const view = preview; preview = null
+  reading.disabled = true
+  fitWidth.disabled = true
   clearTimeout(updateTimer)
   await window.stopTypstPreview()
+  setReadingMode(false)
   stopTransport()
   if (view) await request('preview.close', { view }).catch(() => {})
   element('layout').classList.add('source-only')
@@ -183,6 +192,18 @@ async function closePreview() {
   toggle.textContent = 'Preview'; status.textContent = 'Preview closed'
 }
 toggle.onclick = () => { void (preview ? closePreview() : openPreview()) }
+function setReadingMode(enabled: boolean) {
+  if (enabled === readingMode) return
+  readingMode = enabled
+  element('layout').classList.toggle('reading', enabled)
+  reading.textContent = enabled ? 'Split view' : 'Reading view'
+  reading.title = enabled ? 'Show source beside the preview' : 'Hide source and use the full preview width'
+  reading.setAttribute('aria-pressed', String(enabled))
+  editor.requestMeasure()
+  window.dispatchEvent(new Event('resize'))
+}
+reading.onclick = () => setReadingMode(!readingMode)
+fitWidth.onclick = fitPreviewWidth
 picker.onchange = () => { if (picker.value) { selectedPath = picker.value; void openPreview() } }
 element<HTMLFormElement>('path-form').onsubmit = event => {
   event.preventDefault()
@@ -253,4 +274,5 @@ divider.onpointerdown = (event) => {
   divider.onpointerup = () => { divider.onpointermove = null }
 }
 await import('../vendor/tinymist.js')
+installReadingNavigation()
 await openPreview()
