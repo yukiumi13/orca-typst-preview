@@ -17,6 +17,31 @@
       ],
       "releases": [
         {
+          "version": "0.3.1",
+          "commit": "0ef11956f3a0a005d4fa933875507cb481be840e",
+          "contentHash": "bcba32e0380d1a73e3d0de4ee1bd790bbeb2dfa17b6d17890ef07d752f88c931",
+          "execution": "trusted-worker",
+          "minimumOrca": "1.4.247",
+          "name": "Typst Preview",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Preview",
+              "detail": ".typ"
+            }
+          ],
+          "capabilities": [
+            "workspace:read",
+            "settings:own"
+          ],
+          "fileTypes": [
+            "typ"
+          ],
+          "editorFileTypes": [
+            "typ"
+          ]
+        },
+        {
           "version": "0.3.0",
           "commit": "2201a6c7bee98418991d538ce4f0d68cad364256",
           "contentHash": "c8a1f76dc873deb725dba3071fe0218e19bb5b216e44937607a2fca94c6a7c92",
