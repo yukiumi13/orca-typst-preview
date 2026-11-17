@@ -1,0 +1,6 @@
+Typst Preview for Orca
+Copyright 2026 yukiumi13
+
+Includes the Tinymist preview renderer (Apache-2.0); see vendor/NOTICE.md
+and vendor/LICENSE-tinymist. Third-party browser dependency license texts
+are generated in THIRD_PARTY_NOTICES.txt when building.

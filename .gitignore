@@ -1,0 +1,6 @@
+source/node_modules/
+source/dist/
+source/.orca/
+outputs/
+*.log
+.DS_Store

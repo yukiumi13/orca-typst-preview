@@ -1,0 +1,74 @@
+{
+  "manifestVersion": 2,
+  "id": "typst-preview",
+  "name": "Typst Preview",
+  "version": "0.3.0",
+  "description": "Edit Typst beside a live preview using the current Orca workspace and its existing host connection.",
+  "engines": {
+    "orca": ">=1.4.247"
+  },
+  "execution": "trusted-worker",
+  "pluginApi": 1,
+  "contributes": {
+    "customEditors": [
+      {
+        "id": "typst-preview",
+        "title": "Preview",
+        "extensions": [
+          ".typ"
+        ],
+        "entry": "editor/index.html",
+        "priority": "option"
+      }
+    ],
+    "settings": [
+      {
+        "key": "tinymist",
+        "title": "Tinymist executable",
+        "description": "Path to tinymist on the compilation host. Supports ~/ paths.",
+        "type": "string",
+        "default": "tinymist"
+      },
+      {
+        "key": "fontPath",
+        "title": "Additional font directories",
+        "description": "Optional Typst font path on the compilation host.",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "key": "packagePath",
+        "title": "Local package directory",
+        "description": "Optional override; normally Typst discovers your local packages.",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "key": "backendNode",
+        "title": "Node.js executable on workspace host",
+        "description": "Optional override for remote workspaces. Node.js 22 or newer is required.",
+        "type": "string",
+        "default": "node"
+      },
+      {
+        "key": "exportPdf",
+        "title": "Export PDF beside source",
+        "description": "While Preview is open, compile saved source to a PDF in the same directory.",
+        "type": "boolean",
+        "default": true
+      }
+    ]
+  },
+  "main": "worker/main.mjs",
+  "capabilities": [
+    {
+      "kind": "workspace:read"
+    },
+    {
+      "kind": "settings:own"
+    }
+  ],
+  "license": "Apache-2.0",
+  "repository": "https://github.com/yukiumi13/orca-typst-preview",
+  "homepage": "https://github.com/yukiumi13/orca-typst-preview#readme"
+}

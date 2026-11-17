@@ -1,0 +1,8 @@
+plugin/** linguist-generated=true
+plugin/editor/main.js -whitespace
+plugin/editor/main.js.map -diff
+source/vendor/** linguist-vendored=true -whitespace
+plugin/vendor/** linguist-vendored=true -whitespace
+LICENSE -whitespace
+source/LICENSE -whitespace
+plugin/LICENSE -whitespace

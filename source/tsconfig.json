@@ -1,0 +1,9 @@
+{
+  "extends": "./.orca/types/tsconfig.json",
+  "include": [
+    "editor"
+  ],
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}
