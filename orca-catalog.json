@@ -1,0 +1,47 @@
+{
+  "catalogVersion": 2,
+  "name": "Yuki Orca Plugins",
+  "owner": "yukiumi13",
+  "plugins": [
+    {
+      "id": "yukiumi13.typst-preview",
+      "source": {
+        "kind": "git",
+        "url": "https://github.com/yukiumi13/orca-typst-preview.git",
+        "ref": "main",
+        "path": "plugin"
+      },
+      "description": "Edit Typst beside live previews using Orca local and remote workspaces.",
+      "categories": [
+        "editors"
+      ],
+      "releases": [
+        {
+          "version": "0.3.0",
+          "commit": "2201a6c7bee98418991d538ce4f0d68cad364256",
+          "contentHash": "c8a1f76dc873deb725dba3071fe0218e19bb5b216e44937607a2fca94c6a7c92",
+          "execution": "trusted-worker",
+          "minimumOrca": "1.4.247",
+          "name": "Typst Preview",
+          "contributes": [
+            {
+              "kind": "customEditors",
+              "name": "Preview",
+              "detail": ".typ"
+            }
+          ],
+          "capabilities": [
+            "workspace:read",
+            "settings:own"
+          ],
+          "fileTypes": [
+            "typ"
+          ],
+          "editorFileTypes": [
+            "typ"
+          ]
+        }
+      ]
+    }
+  ]
+}
