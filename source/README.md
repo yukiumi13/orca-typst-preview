@@ -1,6 +1,6 @@
 # Typst Preview
 
-Last updated on 2026-11-17 at commit `2fd8b69`.
+Last updated on 2026-11-17 at commit `015fbfa`.
 
 Open a `.typ` file in Orca and select **Preview** beside **Source**. Edit the
 source beside Tinymist's live rendering; drag the divider to resize. Paste the
@@ -261,9 +261,8 @@ orca plugin dev watch dist --json
 omit them. Rebuild before testing the browser or reloading a development
 plugin. `tests/browser.mjs` uses real Chromium and Tinymist with an Orca bridge
 fixture and the local `research-note:0.2.0` package. `CHROME_BIN` and
-`TINYMIST_BIN` override those executables. Integration evidence and isolated
-Orca desktop/paired-server harnesses are in
-`outputs/tasks/orca-typst-preview/` at the repository root.
+`TINYMIST_BIN` override those executables. The isolated desktop and paired-server release checks are maintained in the
+authoring workspace; they are not part of this source checkout.
 
 After changing Tinymist versions, verify rendering before updating the bundled
 frontend. Regenerate it from preview HTML with

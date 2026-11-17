@@ -1,5 +1,7 @@
 # Typst Preview for Orca
 
+Last updated on 2026-11-17 at commit `015fbfa`.
+
 Edit Typst beside a live Tinymist preview, on a local or remote workspace using
 Orca's existing connection. Choose a recently modified file or paste its full
 path; unsaved edits appear in the preview, and saved source exports a sibling PDF.
